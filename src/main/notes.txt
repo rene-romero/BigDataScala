@@ -1,0 +1,47 @@
+//READ AND WRITE
+
+1-Leer data (3 csv).
+2-Priorizar data duplicada (tomar los que tienen menos null).
+3-Unificar información.
+    -cuantos registros de locations hicieron match con profiles y cuantos no.
+    -cuantos registros de posts hicieron match con profiles y cuantos no.
+    -cuantos registros quedaron en total.
+4-Generar nuevo archivo con formato más fácil de procesar. (parquet = explicar porque)
+5-Desglosar por lectura, escritura, consultas/acciones, funciones
+(por ejemplo la de quitar el duplicado con menor cantidad de datos).
+
+//EXTRAS
+
+-Revisar temas de seguridad
+-Detectar tanto el archivo como el formato a leer
+-Failover
+-Que pasa si un archivo no cumple con el schema definido
+-Que pasa si tronó un nodo, se recupera o no se recupera
+-Generar logs
+
+//ANALISIS: La intencion del analisis es conocer el comportamiento de los usuarios en instagram para generar posts de impacto, en las horas, 
+lugares y fechas adecuadas para poder llegar a un publico mayor. Saber que es de lo que mas se habla o interactúa.
+Tambien a nivel micro se quiere ver esos usuarios que tienen muchos seguidores,cuales son sus caracteristicas, es decir, que campos tiene o no null, etc.
+
+-Particionar fecha de posteo tanto en date como en hora para conocer tambien las horas mas activas.
+-Palabra mas utilizada en los post.
+-Lugar mas visitado (por paises).
+-Cuales son los post con mas me gusta o comentarios.
+-Cual es el pais con mas usuarios
+-ver las caracteristicas de los perfiles con mas seguidores
+-Tipo de posteo que más se realiza
+-Tipo de posteo con mayor impacto
+-Cuales son las fechas de mayor posteo
+-Cuales son las fechas en las que se obtienen mas me gustas y comentarios
+-Las ciudades con mas visitadas por pais
+-Ciudades visitadas por personas que no son de esa ciudad, es decir, externo a ciudad o pais.
+
+-first console in spark-cluster folder
+docker-compose up --scale spark-worker=3
+
+-second console in before of spark-cluster folder
+docker exec -it spark-cluster-spark-master-1 bash
+/spark/bin/spark-submit --class cdelacruz.TestDeployApp --deploy-mode client --master spark://deecde3d9856:7077 --verbose --supervise /opt/spark-apps/spark-essentials.jar /opt/spark-data/movies.json /opt/spark-data/summary
+
+
+https://www.luismaram.com/estudio-de-mercado-de-instagram/
