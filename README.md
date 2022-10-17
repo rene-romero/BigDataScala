@@ -79,8 +79,6 @@ The second one, the columns have been casted at our discretion.
 ### AnalyzeData.scala
 Inside of this file we'll find the different queries made to answer the questions regarding the given dataset, generating a summary through a parquet file.
 
-### Main.scala
-File in which we will perform a deployment in a cluster through docker, according to what was learned in TheRockJVM course.
 
 
 ## Questions to answer with the dataset:
