@@ -14,8 +14,10 @@ object tests3 extends App {
 
   if (directory.exists && directory.isDirectory) {
     val file = directory.listFiles.filter(_.getName.endsWith(new_name+"." + format_file))
+    val file_2 = directory.listFiles.filter(_.getName.endsWith(new_name+"." + format_file)).maxBy(_.lastModified)
     if(file.size > 0) {
       println(file.size+"_"+new_name)
+      println("File a cambiar nombre: "+file_2)
     }
     else {
       println(new_name)

@@ -2,16 +2,28 @@ package cdelacruz
 
 import Functions._
 import org.apache.spark.sql.functions.col
-import org.apache.spark.sql.types.{BooleanType, DecimalType, IntegerType, LongType, StringType, StructField, TimestampType}
-import org.apache.spark.sql.{SaveMode, SparkSession}
-
-import java.io.File
+import org.apache.spark.sql.types.{BooleanType, DecimalType, DoubleType, IntegerType, LongType, StringType, StructField, StructType, TimestampType}
+import org.apache.spark.sql.{SaveMode}
 
 object ReadData extends App {
 
+  val postsSchema = StructType(Array(
+    StructField("sid",LongType),
+    StructField("sid_profile",LongType),
+    StructField("post_id",StringType),
+    StructField("profile_id",LongType),
+    StructField("location_id",LongType),
+    StructField("cts",TimestampType),
+    StructField("post_type",IntegerType),
+    StructField("description",StringType),
+    StructField("numbr_likes",LongType),
+    StructField("number_comments",LongType)
+  ))
+
   lazy val df_posts = my_spark.read
     .format("csv")
-    .option("mode","PERMISSIVE")
+    .schema(postsSchema)
+    .option("mode", "PERMISSIVE")
     .option("header", "true")
     .option("delimiter", "\t")
     .load("src/main/resources/dataset/instagram_posts.csv")
@@ -75,6 +87,7 @@ object ReadData extends App {
     .option("header", "true")
     .save("src/main/resources/single_file")*/
 
+  //Alternatively I was able to cast my fields with de previous query SQL.
   val df_insta = df.select(
     col("profile_id").cast(LongType),
     col("profile_name").cast(StringType),
