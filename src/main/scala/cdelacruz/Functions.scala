@@ -25,7 +25,7 @@ object Functions extends App {
   def my_spark: SparkSession = {
     val spark = SparkSession.builder()
       .config("spark.master", "local[*]")
-      .appName("SparkByExample")
+      .appName("BigDataScala")
       .getOrCreate()
     return spark
   }

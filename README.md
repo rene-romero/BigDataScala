@@ -20,7 +20,7 @@ with: `docker-compose up --scale spark-worker=3`
 Check the folder spark-cluster for more Details.
 
 And processed through spark Submit eg:
-`/spark/bin/spark-submit --class cdelacruz.TestDeployApp --deploy-mode client --master spark://deecde3d9856:7077 --verbose --supervise /opt/spark-apps/spark-essentials.jar /opt/spark-data/movies.json /opt/spark-data/summary`
+`/spark/bin/spark-submit --class cdelacruz.Main --deploy-mode client --master spark://deecde3d9856:7077 --verbose --supervise /opt/spark-apps/spark-essentials.jar /opt/spark-data/instagram_locations.csv /opt/spark-data/summary`
 
 
 ## Reading and Defining Schema
@@ -31,7 +31,7 @@ The Spark Session was defined as:
   def my_spark: SparkSession = {
     val spark = SparkSession.builder()
       .config("spark.master", "local[*]")
-      .appName("SparkByExample")
+      .appName("BigDataScala")
       .getOrCreate()
     return spark
   }

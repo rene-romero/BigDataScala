@@ -4,8 +4,12 @@ import Functions._
 import org.apache.spark.sql.functions._
 import ReadData._
 import org.apache.spark.sql.types.DecimalType
+import scala.concurrent.duration._
 
 object AnalyzeData extends App {
+  //Time calculation begins
+  val t_ini = System.nanoTime()
+
 
   lazy val df_insta = my_spark.read.parquet("src/main/resources/single_file/instagram.parquet")
 
@@ -306,4 +310,9 @@ object AnalyzeData extends App {
 
   //df_profile_post_impact.show()
   //writeCSV(df_profile_post_impact, ",", "src/main/resources/single_file", "profile_post_impact")
+
+  //Time calculation ends
+  val t_fin = System.nanoTime()
+  val duration = Duration(t_fin - t_ini, NANOSECONDS)
+  println("Elapsed time is: " + duration.toSeconds + " seconds")
 }
