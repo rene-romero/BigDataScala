@@ -304,6 +304,6 @@ object AnalyzeData extends App {
         desc("total_comments")
       )
 
-  df_profile_post_impact.show()
+  //df_profile_post_impact.show()
   //writeCSV(df_profile_post_impact, ",", "src/main/resources/single_file", "profile_post_impact")
 }

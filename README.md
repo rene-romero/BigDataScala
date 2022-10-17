@@ -3,8 +3,10 @@
 ## Dataset
 
 The **Instagram** dataset will be used for implementing different analysis to know the information and get a relevant summary.
+
 The total size of the dataset is: **13.89 GB**
 The total columns to use are: **25 columns**
+
 
 Link: [https://www.kaggle.com/datasets/shmalex/instagram-dataset]
 
@@ -44,9 +46,10 @@ The first read was done to get a sample as:
 ![Untitled](./img/2.png)
 
 
+
 ## How the Dataset is processed
 
-There is 3 Main files on the Project inside the myDataset Package.
+There are 3 Main files on the Project inside the myDataset Package.
 ### Functions.scala
 In this file is defined the functions to generate the differentes processes and in this way be able to reuse code at any time..
 
@@ -64,11 +67,11 @@ In this file is defined the functions to generate the differentes processes and 
 
 The objective of this object is to read the selected dataset with the functions that we have previously created. Join the sources according to the analyzes that need to be created. And typify the information according to the type of data in each of the columns, it has been done in two ways: 
 
-The first is reading the csv delivering a schema created by us. 
+The first one, is reading the csv delivering a schema created by us. 
 
 ![Untitled](./img/3.png)
 
-The second the columns have been casted at our discretion.
+The second one, the columns have been casted at our discretion.
 
 ![Untitled](./img/4.png)
 
@@ -367,3 +370,27 @@ df_profile_post_impact.show()
 ```
 
 ![Untitled](./img/13.png)
+
+
+
+## SUMMARY
+
+**Most active days:** Sunday and Saturday are good days to post and get more views and impact.
+
+![Untitled](./img/14.png)
+
+
+**Post type with more impact:** Photos is by far the type of post that has generated the most impact over time.
+
+![Untitled](./img/15.png)
+
+
+**Profiles with more followers:** The profiles with the most followers are those that use between 0 and 10 hashtags and use photo as their main post type.
+
+![Untitled](./img/16.png)
+
+
+
+As we can see, instagram is one of the largest social networks around the world, knowing how people interact is essential today for companies whose operating logic depends heavily on interactions through social networks (marketing agencies) .
+
+There are a lot of courses on the internet that "teach" how to sell on social networks or how to get many views on posts, but the reality is that only by really analyzing the data can we see trends, characteristics of both profiles and the publications with the greatest impact.
