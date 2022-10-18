@@ -20,7 +20,7 @@ object ReadData extends App {
     StructField("number_comments",LongType)
   ))
 
-  lazy val df_posts = my_spark.read
+  val df_posts = my_spark.read
     .format("csv")
     .schema(postsSchema)
     .option("mode", "PERMISSIVE")
@@ -28,14 +28,14 @@ object ReadData extends App {
     .option("delimiter", "\t")
     .load("src/main/resources/dataset/instagram_posts.csv")
 
-  lazy val df_locations = my_spark.read
+  val df_locations = my_spark.read
     .format("csv")
     .option("mode","PERMISSIVE")
     .option("header", "true")
     .option("delimiter", "\t")
     .load("src/main/resources/dataset/instagram_locations.csv")
 
-  lazy val df_profiles = my_spark.read
+  val df_profiles = my_spark.read
     .format("csv")
     .option("mode","PERMISSIVE")
     .option("header", "true")

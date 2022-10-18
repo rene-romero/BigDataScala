@@ -83,18 +83,21 @@ object AnalyzeData extends App {
     "post_id",
     "description_post"
   )
-    //.where(year(col("timestamp_post")) === 2015)
-    .withColumn("hashtag", explode(split(col("description_post")," ")))
+    .withColumn(
+      "hashtag",
+      explode(filter(split(col("description_post")," "), x => x.startsWith("#")))
+    )
+    /*.withColumn("hashtag", explode(split(col("description_post")," ")))
     .where(
       col("hashtag").like("#%")
       //and year(col("timestamp_post")) === 2015
-    )
+    )*/
     .groupBy(col("hashtag"))
     .agg(
       count("*").as("count")
     )
     .orderBy(desc_nulls_last("count"))
-    //.show()
+    //.show(10)
 
   //Most used word in the posts.
   df_insta.select(

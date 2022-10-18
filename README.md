@@ -5,7 +5,23 @@
 The **Instagram** dataset will be used for implementing different analysis to know the information and get a relevant summary.
 
 The total size of the dataset is: **13.89 GB**
-The total columns to use are: **25 columns**
+The total columns to use are: **25 columns**  
+
+
+**Observations:**  
+
+source profiles:    94% of the records of 'profile_name' are null.   
+                    97% of the records of 'firstname_lastname' are null.  
+                    99% of the records of 'description' are null.  
+  
+source posts:       97% of the records of 'description' are null.  
+  
+source locations:   57% of the records of 'name' are null.  
+                    95% of the records of 'city' are null.  
+                    99% of the records of 'cd' are null.  
+ 
+
+For specific analyses, the 3 main sources were combined, giving a total of: **27,434,459** records that were matched.
 
 
 Link: [https://www.kaggle.com/datasets/shmalex/instagram-dataset]
