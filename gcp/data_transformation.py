@@ -18,6 +18,8 @@ def run():
     parser.add_argument('--stagingLocation', required=True, help='Specify Cloud Storage bucket for staging')
     parser.add_argument('--tempLocation', required=True, help='Specify Cloud Storage bucket for temp')
     parser.add_argument('--runner', required=True, help='Specify Apache Beam Runner')
+    parser.add_argument('--input', required=True, help='Specify the source of the file')
+    parser.add_argument('--output', required=True, help='Specify the Dataset and table')
 
     opts = parser.parse_args()
 
@@ -31,8 +33,8 @@ def run():
     options.view_as(StandardOptions).runner = opts.runner
 
     # Static input and output
-    input = 'gs://{0}/profile_post_impact.csv'.format(opts.project)
-    output = '{0}:logs.logs'.format(opts.project)
+    input = opts.input
+    output = opts.output
 
     # Table schema for BigQuery
     table_schema = {
