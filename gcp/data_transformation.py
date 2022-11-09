@@ -168,8 +168,7 @@ def run(argv=None):
     # be run in parallel on different workers using input from the
     # previous stage of the pipeline.
     | 'Data_Transformation' >> beam.Map(parse_method)
-    | 'Write_to_BigQuery' >> beam.io.Write(
-    beam.io.BigQuerySink(
+    | 'Write_to_BigQuery' >> beam.io.WriteToBigQuery(
     # The table name is a required argument for the BigQuery sink.
     # In this case we use the value passed in from the command line.
     known_args.output,
@@ -179,7 +178,7 @@ def run(argv=None):
     # Creates the table in BigQuery if it does not yet exist.
     create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED,
     # Deletes all data in the BigQuery table before writing.
-    write_disposition=beam.io.BigQueryDisposition.WRITE_TRUNCATE)))
+    write_disposition=beam.io.BigQueryDisposition.WRITE_TRUNCATE))
     p.run().wait_until_finish()
 
 
