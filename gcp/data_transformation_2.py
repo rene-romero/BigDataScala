@@ -1,8 +1,11 @@
 import logging
 import argparse
+import time
 import re
 from datetime import datetime as dt
 from apache_beam.options.pipeline_options import PipelineOptions
+from apache_beam.options.pipeline_options import StandardOptions
+from apache_beam.options.pipeline_options import GoogleCloudOptions
 import apache_beam as beam
 
 
@@ -115,21 +118,35 @@ def parse_method(string_input):
 def run(argv=None):
     """The main function which creates the pipeline and runs it."""
 
-    parser = argparse.ArgumentParser()
+    # Command line arguments
+    parser = argparse.ArgumentParser(description='Load from csv into BigQuery')
+    parser.add_argument('--project',required=True, help='Specify Google Cloud project')
+    parser.add_argument('--region', required=True, help='Specify Google Cloud region')
+    parser.add_argument('--stagingLocation', required=True, help='Specify Cloud Storage bucket for staging')
+    parser.add_argument('--tempLocation', required=True, help='Specify Cloud Storage bucket for temp')
+    parser.add_argument('--runner', required=True, help='Specify Apache Beam Runner')
 
     # Here we add some specific command line arguments we expect.
     # Specifically we have the input file to read and the output table to write.
     # This is the final stage of the pipeline, where we define the destination
     # of the data. In this case we are writing to BigQuery.
-    parser.add_argument('--input',  dest='input',   required=True, help='Input file to read. This can be a local file or a file in a Google Storage Bucket.')
+    parser.add_argument('--input',  dest='input',   required=False, help='Input file to read. This can be a local file or a file in a Google Storage Bucket.')
 
     # This defaults to the bucket in your BigQuery project. You'll have
     # to create the bucket yourself using this command:
     # bq mk my-bucket
-    parser.add_argument('--output', dest='output',  required=True, help='Output BQ table to write results to.')
+    parser.add_argument('--output', dest='output',  required=False, help='Output BQ table to write results to.')
 
-    # Parse arguments from the command line.
-    known_args, pipeline_args = parser.parse_known_args(argv)
+    opts = parser.parse_args()
+
+    # Setting up the Beam pipeline options
+    options = PipelineOptions()
+    options.view_as(GoogleCloudOptions).project = opts.project
+    options.view_as(GoogleCloudOptions).region = opts.region
+    options.view_as(GoogleCloudOptions).staging_location = opts.stagingLocation
+    options.view_as(GoogleCloudOptions).temp_location = opts.tempLocation
+    options.view_as(GoogleCloudOptions).job_name = '{0}{1}'.format('my-pipeline-2-',time.time_ns())
+    options.view_as(StandardOptions).runner = opts.runner
 
     # Table schema for BigQuery
     table_schema = 'year:INTEGER,followers:STRING,is_business_account:BOOL,post_type:STRING,number_characters:STRING,number_hashtags:STRING,total_likes:INTEGER,total_comments:INTEGER'
@@ -137,19 +154,19 @@ def run(argv=None):
     # Initiate the pipeline using the pipeline arguments passed in from the
     # command line. This includes information such as the project ID and
     # where Dataflow should store temp files.
-    p = beam.Pipeline(options=PipelineOptions(pipeline_args))
+    p = beam.Pipeline(options=options)
 
     (p
     # Read the file. This is the source of the pipeline. All further
     # processing starts with lines read from the file. We use the input
     # argument from the command line. We also skip the first line which is a
     # header row.
-    | 'Read_from_GCS' >> beam.io.ReadFromText(known_args.input, skip_header_lines=1)
+    | 'Read_from_GCS' >> beam.io.ReadFromText(opts.input, skip_header_lines=1)
 
     # This stage of the pipeline reads individual rows and transforms them
     # according to the logic defined in the functions
     #| 'Deconcactenate Columns' >> beam.Map(deconcat)
-    #| 'Replace Nulls' >> beam.Map(replace_nulls)
+    | 'Replace_Nulls' >> beam.Map(replace_nulls)
     #| 'Convert to BQ Datetime' >> beam.Map(format_datetime_bq)
 
     # This stage of the pipeline translates from a CSV file single row
@@ -157,11 +174,11 @@ def run(argv=None):
     # It refers to a function we have written. This function will
     # be run in parallel on different workers using input from the
     # previous stage of the pipeline.
-    | 'Data_Transformation' >> beam.Map(parse_method)
+    | 'String To BigQuery Row' >> beam.Map(parse_method)
     | 'Write_to_BigQuery' >> beam.io.WriteToBigQuery(
     # The table name is a required argument for the BigQuery sink.
     # In this case we use the value passed in from the command line.
-    known_args.output,
+    opts.output,
     # Here we use the simplest way of defining a schema:
     # fieldName:fieldType
     schema=table_schema,
