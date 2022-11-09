@@ -111,7 +111,7 @@ def parse_method(string_input):
     """
     # Strip out carriage return, newline and quote characters.
     values = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
-    row = dict(zip(('year','followers','is_business_account','post_type','number_characters','number_hashtags','total_likes','total_comments'),values))
+    row = dict(zip(('year_post','post_type','number_likes','number_comments'),values))
     return row
 
 
@@ -149,7 +149,7 @@ def run(argv=None):
     options.view_as(StandardOptions).runner = opts.runner
 
     # Table schema for BigQuery
-    table_schema = 'year:INTEGER,followers:STRING,is_business_account:BOOL,post_type:STRING,number_characters:STRING,number_hashtags:STRING,total_likes:INTEGER,total_comments:INTEGER'
+    table_schema = 'year_post:INTEGER,post_type:STRING,number_likes:INTEGER,number_comments:INTEGER'
 
     # Initiate the pipeline using the pipeline arguments passed in from the
     # command line. This includes information such as the project ID and
