@@ -142,7 +142,42 @@ def run(argv=None):
     known_args, pipeline_args = parser.parse_known_args(argv)
 
     # Table schema for BigQuery
-    table_schema = 'year:INTEGER,followers:STRING,is_business_account:BOOL,post_type:INTEGER,number_characters:STRING,number_hashtags:STRING,total_likes:INTEGER,total_comments:INTEGER'
+    table_schema = {
+        "fields": [
+            {
+                "name": "year",
+                "type": "INTEGER"
+            },
+            {
+                "name": "followers",
+                "type": "STRING"
+            },
+            {
+                "name": "is_business_account",
+                "type": "BOOL"
+            },
+            {
+                "name": "post_type",
+                "type": "STRING"
+            },
+            {
+                "name": "number_characters",
+                "type": "STRING"
+            },
+            {
+                "name": "number_hashtags",
+                "type": "STRING"
+            },
+            {
+                "name": "total_likes",
+                "type": "INTEGER"
+            },
+            {
+                "name": "total_comments",
+                "type": "INTEGER"
+            }
+        ]
+    }
 
 
     # Initiate the pipeline using the pipeline arguments passed in from the
