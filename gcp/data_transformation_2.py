@@ -149,7 +149,7 @@ def run(argv=None):
     options.view_as(StandardOptions).runner = opts.runner
 
     # Table schema for BigQuery
-    table_schema = 'year_post:INTEGER,post_type:STRING,number_likes:BIGINT,number_comments:BIGINT'
+    table_schema = 'year_post:INTEGER,post_type:STRING,number_likes:BIGNUMERIC,number_comments:BIGNUMERIC'
 
     # Initiate the pipeline using the pipeline arguments passed in from the
     # command line. This includes information such as the project ID and
