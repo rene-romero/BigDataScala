@@ -2,7 +2,6 @@ import logging
 import argparse
 import time
 import re
-import csv
 from datetime import datetime as dt
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.pipeline_options import StandardOptions
@@ -24,50 +23,43 @@ def replace_nulls(element):
 
     """
     return element.replace('NULL','')
-    
 
+def parse_method(string_input):
+    """This method translates a single line of comma separated values to a dictionary 
+    which can be loaded into BigQuery.
 
+    Args:
+    string_input: A comma separated list of values in the form: 'Trip_Id, Trip__Duration,
+    Start_Station_Id, Start_Time, Start_Station_Name, End_Station_Id, End_Time, 
+    End_Station_Name, Bike_Id, User_Type'
+
+    Example string_input: '10000083,720,7239,2020-03-10 13:28:00,
+    Bloor St W / Manning Ave - SMART,7160, 10/03/2020 13:40,
+    King St W / Tecumseth St,5563,Annual Member'
+
+    Returns:
+    A dict mapping BigQuery column names as keys to the corresponding value
+    parsed from string_input.
+
+    Example output:
+        {'Trip_Id':'10000083',
+        'Trip__Duration':'720',
+        'Start_Station_Id':'7239',
+        'Start_Time':'2020-03-10 13:28:00',
+        'Start_Station_Name':'Bloor St W / Manning Ave - SMART',
+        'End_Station_Id':'7160',
+        'End_Time':'2020-10-03 13:40:00',
+        'End_Station_Name':'King St W / Tecumseth St',
+        'Bike_Id':'5563',
+        'User_Type':'Annual Member'}
+    """
+    # Strip out carriage return, newline and quote characters.
+    values = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
+    row = dict(zip(('y','n_d','n_r'),values))
+    return row
 
 
 def run(argv=None):
-    import csv
-    import apache_beam as beam
-
-    def parse_method(element):
-        """This method translates a single line of comma separated values to a dictionary 
-        which can be loaded into BigQuery.
-
-        Args:
-        string_input: A comma separated list of values in the form: 'Trip_Id, Trip__Duration,
-        Start_Station_Id, Start_Time, Start_Station_Name, End_Station_Id, End_Time, 
-        End_Station_Name, Bike_Id, User_Type'
-
-        Example string_input: '10000083,720,7239,2020-03-10 13:28:00,
-        Bloor St W / Manning Ave - SMART,7160, 10/03/2020 13:40,
-        King St W / Tecumseth St,5563,Annual Member'
-
-        Returns:
-        A dict mapping BigQuery column names as keys to the corresponding value
-        parsed from string_input.
-
-        Example output:
-            {'Trip_Id':'10000083',
-            'Trip__Duration':'720',
-            'Start_Station_Id':'7239',
-            'Start_Time':'2020-03-10 13:28:00',
-            'Start_Station_Name':'Bloor St W / Manning Ave - SMART',
-            'End_Station_Id':'7160',
-            'End_Time':'2020-10-03 13:40:00',
-            'End_Station_Name':'King St W / Tecumseth St',
-            'Bike_Id':'5563',
-            'User_Type':'Annual Member'}
-        """
-        # Strip out carriage return, newline and quote characters.
-        for line in csv.reader([element], quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL, skipinitialspace=True):
-            return line
-
-
-
     """The main function which creates the pipeline and runs it."""
 
     # Command line arguments
