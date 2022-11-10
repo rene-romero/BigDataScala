@@ -101,7 +101,7 @@ def run(argv=None):
     options.view_as(StandardOptions).runner = opts.runner
 
     # Table schema for BigQuery
-    table_schema = 'year_post:INTEGER,name_day_of_week:STRING,n_reg:INTEGER'
+    table_schema = 'year_post:INTEGER,name_day_of_week:STRING,n_reg:BIGNUMERIC'
 
     # Initiate the pipeline using the pipeline arguments passed in from the
     # command line. This includes information such as the project ID and
