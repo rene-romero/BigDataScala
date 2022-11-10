@@ -56,11 +56,11 @@ def parse_method(string_input):
     """
     # Strip out carriage return, newline and quote characters.
     values = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
-    keys = keys_from_schema_txt(txt)
+    keys = keys_from_schema_txt(bucket, path)
     row = dict(zip(keys,values))
     return row
 
-def keys_from_schema_txt(txt):
+def keys_from_schema_txt(bucket, path):
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(bucket)
     blob = bucket.blob(path)
@@ -71,7 +71,7 @@ def keys_from_schema_txt(txt):
     keys = tuple(keys_3.keys())
     return keys
 
-def schema_txt(txt):
+def schema_txt(bucket, path):
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(bucket)
     blob = bucket.blob(path)
@@ -132,7 +132,7 @@ def run(argv=None):
     path = path_name
 
     # Table schema for BigQuery
-    table_schema = schema_txt(txt)
+    table_schema = schema_txt(bucket, path)
 
     # Initiate the pipeline using the pipeline arguments passed in from the
     # command line. This includes information such as the project ID and
