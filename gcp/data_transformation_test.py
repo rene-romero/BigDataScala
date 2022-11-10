@@ -2,7 +2,7 @@ import logging
 import argparse
 import time
 import re
-from google.cloud import storage
+
 from datetime import datetime as dt
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.pipeline_options import StandardOptions
@@ -13,6 +13,7 @@ import apache_beam as beam
 
 
 def run(argv=None):
+    from google.cloud import storage
     def replace_nulls(element):
         """This function takes a string with comma separated values as input and
         replaces all NULL values with an and empty string
