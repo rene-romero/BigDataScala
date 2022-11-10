@@ -2,7 +2,7 @@ import logging
 import argparse
 import time
 import re
-from pathlib import Path
+from google.cloud import storage
 from datetime import datetime as dt
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.pipeline_options import StandardOptions
@@ -61,14 +61,22 @@ def parse_method(string_input):
     return row
 
 def keys_from_schema_txt(txt):
-    keys_1 = Path(txt).read_text()
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(bucket)
+    blob = bucket.blob(path)
+    keys_1 = blob.download_as_string()
+    # keys_1 = Path(txt).read_text()
     keys_2 = list(item.split(":") for item in keys_1.split("\n"))
     keys_3 = dict(keys_2)
     keys = tuple(keys_3.keys())
     return keys
 
 def schema_txt(txt):
-    table_schema_1 = Path(txt).read_text()
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(bucket)
+    blob = bucket.blob(path)
+    table_schema_1 = blob.download_as_string()
+    # table_schema_1 = Path(txt).read_text()
     table_schema_2 = list(item.split(":") for item in table_schema_1.split("\n"))
     table_schema_3 = dict(table_schema_2)
     schema = str()
@@ -113,9 +121,15 @@ def run(argv=None):
     options.view_as(GoogleCloudOptions).job_name = '{0}{1}'.format('my-pipeline-test-',time.time_ns())
     options.view_as(StandardOptions).runner = opts.runner
 
-    #Declare our global variable schema from txt file.
-    global txt
-    txt = opts.schema
+    #Declare our global variables schema from txt file.
+    #Using match a regular expression to extract the bucket and filename.
+    global uri,bucket,path
+    uri = opts.schema
+    matches = re.match("gs://(.*?)/(.*)", uri)
+    if matches:
+        bucket_name, path_name = matches.groups()
+    bucket = bucket_name
+    path = path_name
 
     # Table schema for BigQuery
     table_schema = schema_txt(txt)
