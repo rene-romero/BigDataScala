@@ -2,7 +2,7 @@ import logging
 import argparse
 import time
 import re
-
+from google.cloud import storage
 from datetime import datetime as dt
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.pipeline_options import StandardOptions
@@ -13,7 +13,6 @@ import apache_beam as beam
 
 
 def run(argv=None):
-    from google.cloud import storage
     def replace_nulls(element):
         """This function takes a string with comma separated values as input and
         replaces all NULL values with an and empty string
@@ -59,8 +58,13 @@ def run(argv=None):
             'User_Type':'Annual Member'}
         """
         # Strip out carriage return, newline and quote characters.
+        matches = re.match("gs://(.*?)/(.*)", uri)
+        if matches:
+            bucket_name, path_name = matches.groups()
+        bucket = bucket_name
+        path = path_name
         values = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
-        keys = keys_from_schema_txt(b, p)
+        keys = keys_from_schema_txt(bucket, path)
         row = dict(zip(keys,values))
         return row
 
@@ -125,8 +129,9 @@ def run(argv=None):
 
     #Declare our global variables schema from txt file.
     #Using match a regular expression to extract the bucket and filename.
-    global uri,bucket,path
+    global uri
     uri = opts.schema
+
     matches = re.match("gs://(.*?)/(.*)", uri)
     if matches:
         bucket_name, path_name = matches.groups()
@@ -159,7 +164,7 @@ def run(argv=None):
     # It refers to a function we have written. This function will
     # be run in parallel on different workers using input from the
     # previous stage of the pipeline.
-    | 'String To BigQuery Row' >> beam.Map(parse_method,bucket,path)
+    | 'String To BigQuery Row' >> beam.Map(parse_method)
     | 'Write_to_BigQuery' >> beam.io.WriteToBigQuery(
     # The table name is a required argument for the BigQuery sink.
     # In this case we use the value passed in from the command line.
