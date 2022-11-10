@@ -55,7 +55,7 @@ def parse_method(string_input):
     """
     # Strip out carriage return, newline and quote characters.
     values = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
-    row = dict(zip(('year_post','name_day_of_week','n_reg'),values))
+    row = dict(zip(('y_p','n_d','n_r'),values))
     return row
 
 
@@ -89,11 +89,11 @@ def run(argv=None):
     options.view_as(GoogleCloudOptions).region = opts.region
     options.view_as(GoogleCloudOptions).staging_location = opts.stagingLocation
     options.view_as(GoogleCloudOptions).temp_location = opts.tempLocation
-    options.view_as(GoogleCloudOptions).job_name = '{0}{1}'.format('my-pipeline-3-',time.time_ns())
+    options.view_as(GoogleCloudOptions).job_name = '{0}{1}'.format('my-pipeline-test-',time.time_ns())
     options.view_as(StandardOptions).runner = opts.runner
 
     # Table schema for BigQuery
-    table_schema = 'year_post:INTEGER,name_day_of_week:STRING,n_reg:BIGNUMERIC'
+    table_schema = 'y_p:INTEGER,n_d:STRING,n_r:BIGNUMERIC'
 
     # Initiate the pipeline using the pipeline arguments passed in from the
     # command line. This includes information such as the project ID and
