@@ -10,83 +10,82 @@ from apache_beam.options.pipeline_options import GoogleCloudOptions
 import apache_beam as beam
 
 
+def replace_nulls(element):
+    """This function takes a string with comma separated values as input and
+    replaces all NULL values with an and empty string
 
+    Example input string:
+    '10000085,1526,7239,10/03/2020 13:28,Bloor St W / Manning Ave - SMART,NULL,
+    10/03/2020 13:53,Foster Pl / Elizabeth St - SMART,3956,Annual Member'
+
+    Example output string:
+    '10000083,720,7239,2020-10-03 13:28:00,Bloor St W / Manning Ave - SMART,,
+    2020-10-03 13:40:00,King St W / Tecumseth St,5563,Annual Member'
+
+    """
+    return element.replace('NULL','')
+
+def parse_method(string_input):
+    """This method translates a single line of comma separated values to a dictionary 
+    which can be loaded into BigQuery.
+
+    Args:
+    string_input: A comma separated list of values in the form: 'Trip_Id, Trip__Duration,
+    Start_Station_Id, Start_Time, Start_Station_Name, End_Station_Id, End_Time, 
+    End_Station_Name, Bike_Id, User_Type'
+
+    Example string_input: '10000083,720,7239,2020-03-10 13:28:00,
+    Bloor St W / Manning Ave - SMART,7160, 10/03/2020 13:40,
+    King St W / Tecumseth St,5563,Annual Member'
+
+    Returns:
+    A dict mapping BigQuery column names as keys to the corresponding value
+    parsed from string_input.
+
+    Example output:
+        {'Trip_Id':'10000083',
+        'Trip__Duration':'720',
+        'Start_Station_Id':'7239',
+        'Start_Time':'2020-03-10 13:28:00',
+        'Start_Station_Name':'Bloor St W / Manning Ave - SMART',
+        'End_Station_Id':'7160',
+        'End_Time':'2020-10-03 13:40:00',
+        'End_Station_Name':'King St W / Tecumseth St',
+        'Bike_Id':'5563',
+        'User_Type':'Annual Member'}
+    """
+    # Strip out carriage return, newline and quote characters.
+    values = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
+    keys = keys_from_schema_txt(bucket, path)
+    row = dict(zip(keys,values))
+    return row
+
+def keys_from_schema_txt(bucket, path):
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(bucket)
+    blob = bucket.blob(path)
+    keys_1 = blob.download_as_text()
+    # keys_1 = Path(txt).read_text()
+    keys_2 = list(item.split(":") for item in keys_1.split("\n"))
+    keys_3 = dict(keys_2)
+    keys = tuple(keys_3.keys())
+    return keys
+
+def schema_txt(bucket, path):
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(bucket)
+    blob = bucket.blob(path)
+    table_schema_1 = blob.download_as_text()
+    # table_schema_1 = Path(txt).read_text()
+    table_schema_2 = list(item.split(":") for item in table_schema_1.split("\n"))
+    table_schema_3 = dict(table_schema_2)
+    schema = str()
+    for key in table_schema_3:
+        schema += key + ":" + table_schema_3[key] + ","
+    table_schema = schema.strip(",")
+    return table_schema
 
 def run(argv=None):
-    def replace_nulls(element):
-        """This function takes a string with comma separated values as input and
-        replaces all NULL values with an and empty string
-
-        Example input string:
-        '10000085,1526,7239,10/03/2020 13:28,Bloor St W / Manning Ave - SMART,NULL,
-        10/03/2020 13:53,Foster Pl / Elizabeth St - SMART,3956,Annual Member'
-
-        Example output string:
-        '10000083,720,7239,2020-10-03 13:28:00,Bloor St W / Manning Ave - SMART,,
-        2020-10-03 13:40:00,King St W / Tecumseth St,5563,Annual Member'
-
-        """
-        return element.replace('NULL','')
-
-    def parse_method(string_input):
-        """This method translates a single line of comma separated values to a dictionary 
-        which can be loaded into BigQuery.
-
-        Args:
-        string_input: A comma separated list of values in the form: 'Trip_Id, Trip__Duration,
-        Start_Station_Id, Start_Time, Start_Station_Name, End_Station_Id, End_Time, 
-        End_Station_Name, Bike_Id, User_Type'
-
-        Example string_input: '10000083,720,7239,2020-03-10 13:28:00,
-        Bloor St W / Manning Ave - SMART,7160, 10/03/2020 13:40,
-        King St W / Tecumseth St,5563,Annual Member'
-
-        Returns:
-        A dict mapping BigQuery column names as keys to the corresponding value
-        parsed from string_input.
-
-        Example output:
-            {'Trip_Id':'10000083',
-            'Trip__Duration':'720',
-            'Start_Station_Id':'7239',
-            'Start_Time':'2020-03-10 13:28:00',
-            'Start_Station_Name':'Bloor St W / Manning Ave - SMART',
-            'End_Station_Id':'7160',
-            'End_Time':'2020-10-03 13:40:00',
-            'End_Station_Name':'King St W / Tecumseth St',
-            'Bike_Id':'5563',
-            'User_Type':'Annual Member'}
-        """
-        # Strip out carriage return, newline and quote characters.
-        values = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
-        keys = keys_from_schema_txt(bucket, path)
-        row = dict(zip(keys,values))
-        return row
-
-    def keys_from_schema_txt(bucket, path):
-        storage_client = storage.Client()
-        bucket = storage_client.get_bucket(bucket)
-        blob = bucket.blob(path)
-        keys_1 = blob.download_as_text()
-        # keys_1 = Path(txt).read_text()
-        keys_2 = list(item.split(":") for item in keys_1.split("\n"))
-        keys_3 = dict(keys_2)
-        keys = tuple(keys_3.keys())
-        return keys
-
-    def schema_txt(bucket, path):
-        storage_client = storage.Client()
-        bucket = storage_client.get_bucket(bucket)
-        blob = bucket.blob(path)
-        table_schema_1 = blob.download_as_text()
-        # table_schema_1 = Path(txt).read_text()
-        table_schema_2 = list(item.split(":") for item in table_schema_1.split("\n"))
-        table_schema_3 = dict(table_schema_2)
-        schema = str()
-        for key in table_schema_3:
-            schema += key + ":" + table_schema_3[key] + ","
-        table_schema = schema.strip(",")
-        return table_schema
     """The main function which creates the pipeline and runs it."""
 
     # Command line arguments
