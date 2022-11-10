@@ -90,7 +90,7 @@ def run(argv=None):
     options.view_as(GoogleCloudOptions).region = opts.region
     options.view_as(GoogleCloudOptions).staging_location = opts.stagingLocation
     options.view_as(GoogleCloudOptions).temp_location = opts.tempLocation
-    options.view_as(GoogleCloudOptions).job_name = '{0}{1}'.format('my-pipeline-2-',time.time_ns())
+    options.view_as(GoogleCloudOptions).job_name = '{0}{1}'.format('my-pipeline-3-',time.time_ns())
     options.view_as(StandardOptions).runner = opts.runner
 
     # Table schema for BigQuery
