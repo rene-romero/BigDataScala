@@ -26,6 +26,13 @@ def replace_nulls(element):
     return element.replace('NULL','')
     
 
+
+
+
+def run(argv=None):
+    import csv
+    import apache_beam as beam
+
 def parse_method(element):
     """This method translates a single line of comma separated values to a dictionary 
     which can be loaded into BigQuery.
@@ -60,8 +67,7 @@ def parse_method(element):
         return line
 
 
-def run(argv=None):
-    import csv
+
     """The main function which creates the pipeline and runs it."""
 
     # Command line arguments
