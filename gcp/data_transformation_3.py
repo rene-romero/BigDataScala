@@ -61,6 +61,7 @@ def parse_method(element):
 
 
 def run(argv=None):
+    import csv
     """The main function which creates the pipeline and runs it."""
 
     # Command line arguments
