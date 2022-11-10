@@ -56,7 +56,7 @@ def parse_method(string_input):
     """
     # Strip out carriage return, newline and quote characters.
     file = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
-    keys = tuple(file[0])
+    keys = tuple(file[0].split(","))
     file.pop(0)
     values = file
     row = dict(zip(keys,values))
