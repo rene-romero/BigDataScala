@@ -146,7 +146,7 @@ def run(argv=None):
     # processing starts with lines read from the file. We use the input
     # argument from the command line. We also skip the first line which is a
     # header row.
-    | 'Read_from_GCS' >> beam.io.ReadFromText(opts.input, skip_header_lines=1)
+    | 'Read_from_GCS' >> beam.io.ReadFromText(opts.input)
 
     # This stage of the pipeline reads individual rows and transforms them
     # according to the logic defined in the functions
