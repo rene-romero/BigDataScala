@@ -2,6 +2,7 @@ import logging
 import argparse
 import time
 import re
+from pathlib import Path
 from datetime import datetime as dt
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.pipeline_options import StandardOptions
@@ -55,9 +56,26 @@ def parse_method(string_input):
     """
     # Strip out carriage return, newline and quote characters.
     values = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
-    row = dict(zip(('y_p','n_d','n_r'),values))
+    keys = keys_from_schema_txt(txt)
+    row = dict(zip(keys,values))
     return row
 
+def keys_from_schema_txt(txt):
+    keys_1 = Path(txt).read_text()
+    keys_2 = list(item.split(":") for item in keys_1.split("\n"))
+    keys_3 = dict(keys_2)
+    keys = tuple(keys_3.keys())
+    return keys
+
+def schema_txt(txt):
+    table_schema_1 = Path(txt).read_text()
+    table_schema_2 = list(item.split(":") for item in table_schema_1.split("\n"))
+    table_schema_3 = dict(table_schema_2)
+    schema = str()
+    for key in table_schema_3:
+        schema += key + ":" + table_schema_3[key] + ","
+    table_schema = schema.strip(",")
+    return table_schema
 
 def run(argv=None):
     """The main function which creates the pipeline and runs it."""
@@ -74,12 +92,15 @@ def run(argv=None):
     # Specifically we have the input file to read and the output table to write.
     # This is the final stage of the pipeline, where we define the destination
     # of the data. In this case we are writing to BigQuery.
-    parser.add_argument('--input',  dest='input',   required=False, help='Input file to read. This can be a local file or a file in a Google Storage Bucket.')
+    parser.add_argument('--input',  dest='input',   required=True, help='Input file to read. This can be a local file or a file in a Google Storage Bucket.')
 
     # This defaults to the bucket in your BigQuery project. You'll have
     # to create the bucket yourself using this command:
     # bq mk my-bucket
-    parser.add_argument('--output', dest='output',  required=False, help='Output BQ table to write results to.')
+    parser.add_argument('--output', dest='output',  required=True, help='Output BQ table to write results to.')
+
+    # This parameter it's to especify a schema.
+    parser.add_argument('--schema', dest='schema',  required=True, help='Input schema to apply in our data.')
 
     opts = parser.parse_args()
 
@@ -92,8 +113,12 @@ def run(argv=None):
     options.view_as(GoogleCloudOptions).job_name = '{0}{1}'.format('my-pipeline-test-',time.time_ns())
     options.view_as(StandardOptions).runner = opts.runner
 
+    #Declare our global variable schema from txt file.
+    global txt
+    txt = opts.schema
+
     # Table schema for BigQuery
-    table_schema = 'y_p:INTEGER,n_d:STRING,n_r:BIGNUMERIC'
+    table_schema = schema_txt(txt)
 
     # Initiate the pipeline using the pipeline arguments passed in from the
     # command line. This includes information such as the project ID and
