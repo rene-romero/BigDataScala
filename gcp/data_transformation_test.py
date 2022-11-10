@@ -63,10 +63,10 @@ def run(argv=None):
         row = dict(zip(keys,values))
         return row
 
-    def keys_from_schema_txt(bucket, path):
+    def keys_from_schema_txt(b, p):
         storage_client = storage.Client()
-        bucket = storage_client.get_bucket(bucket)
-        blob = bucket.blob(path)
+        b_1 = storage_client.get_bucket(b)
+        blob = b_1.blob(p)
         keys_1 = blob.download_as_text()
         # keys_1 = Path(txt).read_text()
         keys_2 = list(item.split(":") for item in keys_1.split("\n"))
@@ -74,10 +74,10 @@ def run(argv=None):
         keys = tuple(keys_3.keys())
         return keys
 
-    def schema_txt(bucket, path):
+    def schema_txt(b, p):
         storage_client = storage.Client()
-        bucket = storage_client.get_bucket(bucket)
-        blob = bucket.blob(path)
+        b_1 = storage_client.get_bucket(b)
+        blob = b_1.blob(p)
         table_schema_1 = blob.download_as_text()
         # table_schema_1 = Path(txt).read_text()
         table_schema_2 = list(item.split(":") for item in table_schema_1.split("\n"))
