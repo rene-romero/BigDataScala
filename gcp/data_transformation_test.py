@@ -28,7 +28,7 @@ def run(argv=None):
         """
         return element.replace('NULL','')
 
-    def parse_method(string_input):
+    def parse_method(string_input,b,p):
         """This method translates a single line of comma separated values to a dictionary 
         which can be loaded into BigQuery.
 
@@ -59,7 +59,7 @@ def run(argv=None):
         """
         # Strip out carriage return, newline and quote characters.
         values = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
-        keys = keys_from_schema_txt(bucket, path)
+        keys = keys_from_schema_txt(b, p)
         row = dict(zip(keys,values))
         return row
 
@@ -158,7 +158,7 @@ def run(argv=None):
     # It refers to a function we have written. This function will
     # be run in parallel on different workers using input from the
     # previous stage of the pipeline.
-    | 'String To BigQuery Row' >> beam.Map(parse_method)
+    | 'String To BigQuery Row' >> beam.Map(parse_method,bucket,path)
     | 'Write_to_BigQuery' >> beam.io.WriteToBigQuery(
     # The table name is a required argument for the BigQuery sink.
     # In this case we use the value passed in from the command line.
