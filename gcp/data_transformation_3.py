@@ -55,7 +55,7 @@ def parse_method(string_input):
     """
     # Strip out carriage return, newline and quote characters.
     values = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
-    row = dict(zip(('y','n_d','n_r'),values))
+    row = dict(zip(('year_post','name_day_of_week','n_reg'),values))
     return row
 
 
