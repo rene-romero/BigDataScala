@@ -35,9 +35,9 @@ def schema_txt(b, p):
 def replace_nulls(element):
     return element.replace('NULL','')
 
-def parse_method(string_input, b, p):
+def parse_method(string_input):
     values = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
-    keys = keys_from_schema_txt(b,p)
+    keys = ('year_post','name_day_of_week','n_reg')
     row = dict(zip(keys,values))
     return row
 
@@ -64,7 +64,7 @@ def run(**kwargs):
     (p
     | 'Read_from_GCS' >> beam.io.ReadFromText(kwargs.get('input'), skip_header_lines=1)
     | 'Replace_Nulls' >> beam.Map(replace_nulls)
-    | 'String To BigQuery Row' >> beam.Map(parse_method, b=bucket, p=path)
+    | 'String To BigQuery Row' >> beam.Map(parse_method)
     | 'Write_to_BigQuery' >> beam.io.WriteToBigQuery(
     kwargs.get('output'),
     schema=table_schema,
