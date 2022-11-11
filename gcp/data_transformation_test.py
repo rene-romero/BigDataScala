@@ -101,7 +101,7 @@ def run(**kwargs):
     p = beam.Pipeline(options=options)
 
     (p
-    | 'Read_from_GCS' >> beam.io.ReadFromText(opts.input)
+    | 'Read_from_GCS' >> beam.io.ReadFromText(opts.input, skip_header_lines=1)
     | 'Replace_Nulls' >> beam.Map(replace_nulls)
     | 'String To BigQuery Row' >> beam.Map(parse_method)
     | 'Write_to_BigQuery' >> beam.io.WriteToBigQuery(
