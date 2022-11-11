@@ -9,24 +9,25 @@ from apache_beam.options.pipeline_options import StandardOptions
 from apache_beam.options.pipeline_options import GoogleCloudOptions
 import apache_beam as beam
 
-def schema_txt(bucket, path):
-    storage_client = storage.Client()
-    bucket = storage_client.get_bucket(bucket)
-    blob = bucket.blob(path)
-    table_schema_1 = blob.download_as_text()
-    table_schema_2 = list(item.split(":") for item in table_schema_1.split("\n"))
-    table_schema_3 = dict(table_schema_2)
-    schema = str()
-    for key in table_schema_3:
-        schema += key + ":" + table_schema_3[key] + ","
-    table_schema = schema.strip(",")
-    return table_schema
-
-def replace_nulls(element):
-    return element.replace('NULL','')
-
 def run(**kwargs):
     from google.cloud import storage
+
+    def schema_txt(bucket, path):
+        storage_client = storage.Client()
+        bucket = storage_client.get_bucket(bucket)
+        blob = bucket.blob(path)
+        table_schema_1 = blob.download_as_text()
+        table_schema_2 = list(item.split(":") for item in table_schema_1.split("\n"))
+        table_schema_3 = dict(table_schema_2)
+        schema = str()
+        for key in table_schema_3:
+            schema += key + ":" + table_schema_3[key] + ","
+        table_schema = schema.strip(",")
+        return table_schema
+
+    def replace_nulls(element):
+        return element.replace('NULL','')
+
     def keys_from_schema_txt(bucket, path):
         storage_client = storage.Client()
         bucket = storage_client.get_bucket(bucket)
