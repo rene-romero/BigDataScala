@@ -2,7 +2,7 @@ import logging
 import argparse
 import time
 import re
-from google.cloud import storage
+
 from datetime import datetime as dt
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.pipeline_options import StandardOptions
@@ -11,6 +11,7 @@ from apache_beam.options.pipeline_options import SetupOptions
 import apache_beam as beam
 
 def keys_from_schema_txt(b, p):
+    from google.cloud import storage
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(b)
     blob = bucket.blob(p)
@@ -21,6 +22,7 @@ def keys_from_schema_txt(b, p):
     return keys
 
 def schema_txt(b, p):
+    from google.cloud import storage
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(b)
     blob = bucket.blob(p)
@@ -37,6 +39,7 @@ def replace_nulls(element):
     return element.replace('NULL','')
 
 def parse_method(string_input, b, p):
+    from google.cloud import storage
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(b)
     blob = bucket.blob(p)
