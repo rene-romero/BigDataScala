@@ -7,6 +7,7 @@ from datetime import datetime as dt
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.pipeline_options import StandardOptions
 from apache_beam.options.pipeline_options import GoogleCloudOptions
+from apache_beam.options.pipeline_options import SetupOptions
 import apache_beam as beam
 
 def keys_from_schema_txt(b, p):
@@ -49,6 +50,7 @@ def run(**kwargs):
     options.view_as(GoogleCloudOptions).temp_location = kwargs.get('tempLocation')
     options.view_as(GoogleCloudOptions).job_name = '{0}{1}'.format('my-pipeline-test-',time.time_ns())
     options.view_as(StandardOptions).runner = kwargs.get('runner')
+    options.view_as(SetupOptions).save_main_session = True
 
     uri = kwargs.get('schema')
     matches = re.match("gs://(.*?)/(.*)", uri)
@@ -59,7 +61,7 @@ def run(**kwargs):
 
     table_schema = schema_txt(bucket, path)
 
-    p = beam.Pipeline(options=options, save_main_session=True)
+    p = beam.Pipeline(options=options)
 
     (p
     | 'Read_from_GCS' >> beam.io.ReadFromText(kwargs.get('input'), skip_header_lines=1)
