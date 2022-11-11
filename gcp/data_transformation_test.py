@@ -55,10 +55,8 @@ def parse_method(string_input):
         'User_Type':'Annual Member'}
     """
     # Strip out carriage return, newline and quote characters.
-    file = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
-    keys = tuple(file[0].split(","))
-    file.pop(0)
-    values = file
+    values = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
+    keys = keys_from_schema_txt(bucket, path)
     row = dict(zip(keys,values))
     return row
 
@@ -87,9 +85,35 @@ def schema_txt(bucket, path):
     table_schema = schema.strip(",")
     return table_schema
 
-def run(argv=None):
+def run(**kwargs):
     """The main function which creates the pipeline and runs it."""
+    # Setting up the Beam pipeline options
+    options = PipelineOptions()
+    options.view_as(GoogleCloudOptions).project = kwargs.get('project')
+    options.view_as(GoogleCloudOptions).region = kwargs.get('region')
+    options.view_as(GoogleCloudOptions).staging_location = kwargs.get('stagingLocation')
+    options.view_as(GoogleCloudOptions).temp_location = kwargs.get('tempLocation')
+    options.view_as(GoogleCloudOptions).job_name = '{0}{1}'.format('my-pipeline-test-',time.time_ns())
+    options.view_as(StandardOptions).runner = kwargs.get('runner')
 
+    table_schema = schema_txt(bucket, path)
+
+    p = beam.Pipeline(options=options)
+
+    (p
+    | 'Read_from_GCS' >> beam.io.ReadFromText(opts.input)
+    | 'Replace_Nulls' >> beam.Map(replace_nulls)
+    | 'String To BigQuery Row' >> beam.Map(parse_method)
+    | 'Write_to_BigQuery' >> beam.io.WriteToBigQuery(
+    opts.output,
+    schema=table_schema,
+    create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED,
+    write_disposition=beam.io.BigQueryDisposition.WRITE_TRUNCATE))
+    p.run().wait_until_finish()
+
+
+if __name__ == "__main__":
+    
     # Command line arguments
     parser = argparse.ArgumentParser(description='Load from csv into BigQuery')
     parser.add_argument('--project',required=True, help='Specify Google Cloud project')
@@ -97,34 +121,11 @@ def run(argv=None):
     parser.add_argument('--stagingLocation', required=True, help='Specify Cloud Storage bucket for staging')
     parser.add_argument('--tempLocation', required=True, help='Specify Cloud Storage bucket for temp')
     parser.add_argument('--runner', required=True, help='Specify Apache Beam Runner')
-
-    # Here we add some specific command line arguments we expect.
-    # Specifically we have the input file to read and the output table to write.
-    # This is the final stage of the pipeline, where we define the destination
-    # of the data. In this case we are writing to BigQuery.
     parser.add_argument('--input',  dest='input',   required=True, help='Input file to read. This can be a local file or a file in a Google Storage Bucket.')
-
-    # This defaults to the bucket in your BigQuery project. You'll have
-    # to create the bucket yourself using this command:
-    # bq mk my-bucket
     parser.add_argument('--output', dest='output',  required=True, help='Output BQ table to write results to.')
-
-    # This parameter it's to especify a schema.
     parser.add_argument('--schema', dest='schema',  required=True, help='Input schema to apply in our data.')
-
     opts = parser.parse_args()
 
-    # Setting up the Beam pipeline options
-    options = PipelineOptions()
-    options.view_as(GoogleCloudOptions).project = opts.project
-    options.view_as(GoogleCloudOptions).region = opts.region
-    options.view_as(GoogleCloudOptions).staging_location = opts.stagingLocation
-    options.view_as(GoogleCloudOptions).temp_location = opts.tempLocation
-    options.view_as(GoogleCloudOptions).job_name = '{0}{1}'.format('my-pipeline-test-',time.time_ns())
-    options.view_as(StandardOptions).runner = opts.runner
-
-    #Declare our global variables schema from txt file.
-    #Using match a regular expression to extract the bucket and filename.
     global uri,bucket,path
     uri = opts.schema
     matches = re.match("gs://(.*?)/(.*)", uri)
@@ -133,47 +134,5 @@ def run(argv=None):
     bucket = bucket_name
     path = path_name
 
-    # Table schema for BigQuery
-    table_schema = schema_txt(bucket, path)
-
-    # Initiate the pipeline using the pipeline arguments passed in from the
-    # command line. This includes information such as the project ID and
-    # where Dataflow should store temp files.
-    p = beam.Pipeline(options=options)
-
-    (p
-    # Read the file. This is the source of the pipeline. All further
-    # processing starts with lines read from the file. We use the input
-    # argument from the command line. We also skip the first line which is a
-    # header row.
-    | 'Read_from_GCS' >> beam.io.ReadFromText(opts.input)
-
-    # This stage of the pipeline reads individual rows and transforms them
-    # according to the logic defined in the functions
-    #| 'Deconcactenate Columns' >> beam.Map(deconcat)
-    | 'Replace_Nulls' >> beam.Map(replace_nulls)
-    #| 'Convert to BQ Datetime' >> beam.Map(format_datetime_bq)
-
-    # This stage of the pipeline translates from a CSV file single row
-    # input as a string, to a dictionary object consumable by BigQuery.
-    # It refers to a function we have written. This function will
-    # be run in parallel on different workers using input from the
-    # previous stage of the pipeline.
-    | 'String To BigQuery Row' >> beam.Map(parse_method)
-    | 'Write_to_BigQuery' >> beam.io.WriteToBigQuery(
-    # The table name is a required argument for the BigQuery sink.
-    # In this case we use the value passed in from the command line.
-    opts.output,
-    # Here we use the simplest way of defining a schema:
-    # fieldName:fieldType
-    schema=table_schema,
-    # Creates the table in BigQuery if it does not yet exist.
-    create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED,
-    # Deletes all data in the BigQuery table before writing.
-    write_disposition=beam.io.BigQueryDisposition.WRITE_TRUNCATE))
-    p.run().wait_until_finish()
-
-
-if __name__ == "__main__":
     logging.getLogger().setLevel(logging.WARNING)
-    run()
+    run(**vars(opts))
