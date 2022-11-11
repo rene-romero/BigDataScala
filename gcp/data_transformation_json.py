@@ -45,7 +45,7 @@ def run(**kwargs):
     options.view_as(GoogleCloudOptions).region = kwargs.get('region')
     options.view_as(GoogleCloudOptions).staging_location = kwargs.get('stagingLocation')
     options.view_as(GoogleCloudOptions).temp_location = kwargs.get('tempLocation')
-    options.view_as(GoogleCloudOptions).job_name = '{0}{1}'.format('my-pipeline-test-',time.time_ns())
+    options.view_as(GoogleCloudOptions).job_name = '{0}{1}'.format('my-pipeline-json-',time.time_ns())
     options.view_as(StandardOptions).runner = kwargs.get('runner')
 
     uri = kwargs.get('schema')
