@@ -2,7 +2,7 @@ import logging
 import argparse
 import time
 import re
-from google.cloud import storage
+
 from datetime import datetime as dt
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.pipeline_options import StandardOptions
@@ -26,6 +26,7 @@ def replace_nulls(element):
     return element.replace('NULL','')
 
 def run(**kwargs):
+    from google.cloud import storage
     def keys_from_schema_txt(bucket, path):
         storage_client = storage.Client()
         bucket = storage_client.get_bucket(bucket)
@@ -38,7 +39,7 @@ def run(**kwargs):
 
     def parse_method(string_input, b, p):
         values = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
-        keys = keys_from_schema_txt(b, p)
+        keys = (keys_from_schema_txt(b, p))
         row = dict(zip(keys,values))
         return row
 
