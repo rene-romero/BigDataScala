@@ -9,6 +9,30 @@ from apache_beam.options.pipeline_options import StandardOptions
 from apache_beam.options.pipeline_options import GoogleCloudOptions
 import apache_beam as beam
 
+def keys_from_schema_txt(bucket, path):
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(bucket)
+    blob = bucket.blob(path)
+    keys_1 = blob.download_as_text()
+    # keys_1 = Path(txt).read_text()
+    keys_2 = list(item.split(":") for item in keys_1.split("\n"))
+    keys_3 = dict(keys_2)
+    keys = tuple(keys_3.keys())
+    return keys
+
+def schema_txt(bucket, path):
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(bucket)
+    blob = bucket.blob(path)
+    table_schema_1 = blob.download_as_text()
+    # table_schema_1 = Path(txt).read_text()
+    table_schema_2 = list(item.split(":") for item in table_schema_1.split("\n"))
+    table_schema_3 = dict(table_schema_2)
+    schema = str()
+    for key in table_schema_3:
+        schema += key + ":" + table_schema_3[key] + ","
+    table_schema = schema.strip(",")
+    return table_schema
 
 def replace_nulls(element):
     """This function takes a string with comma separated values as input and
@@ -59,31 +83,6 @@ def parse_method(string_input):
     keys = keys_from_schema_txt(bucket, path)
     row = dict(zip(keys,values))
     return row
-
-def keys_from_schema_txt(bucket, path):
-    storage_client = storage.Client()
-    bucket = storage_client.get_bucket(bucket)
-    blob = bucket.blob(path)
-    keys_1 = blob.download_as_text()
-    # keys_1 = Path(txt).read_text()
-    keys_2 = list(item.split(":") for item in keys_1.split("\n"))
-    keys_3 = dict(keys_2)
-    keys = tuple(keys_3.keys())
-    return keys
-
-def schema_txt(bucket, path):
-    storage_client = storage.Client()
-    bucket = storage_client.get_bucket(bucket)
-    blob = bucket.blob(path)
-    table_schema_1 = blob.download_as_text()
-    # table_schema_1 = Path(txt).read_text()
-    table_schema_2 = list(item.split(":") for item in table_schema_1.split("\n"))
-    table_schema_3 = dict(table_schema_2)
-    schema = str()
-    for key in table_schema_3:
-        schema += key + ":" + table_schema_3[key] + ","
-    table_schema = schema.strip(",")
-    return table_schema
 
 def run(**kwargs):
     """The main function which creates the pipeline and runs it."""
