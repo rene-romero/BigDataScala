@@ -9,17 +9,6 @@ from apache_beam.options.pipeline_options import StandardOptions
 from apache_beam.options.pipeline_options import GoogleCloudOptions
 import apache_beam as beam
 
-def keys_from_schema_txt(bucket, path):
-    storage_client = storage.Client()
-    bucket = storage_client.get_bucket(bucket)
-    blob = bucket.blob(path)
-    keys_1 = blob.download_as_text()
-    # keys_1 = Path(txt).read_text()
-    keys_2 = list(item.split(":") for item in keys_1.split("\n"))
-    keys_3 = dict(keys_2)
-    keys = tuple(keys_3.keys())
-    return keys
-
 def schema_txt(bucket, path):
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(bucket)
@@ -85,6 +74,17 @@ def parse_method(string_input):
     return row
 
 def run(**kwargs):
+    def keys_from_schema_txt(bucket, path):
+        storage_client = storage.Client()
+        bucket = storage_client.get_bucket(bucket)
+        blob = bucket.blob(path)
+        keys_1 = blob.download_as_text()
+        # keys_1 = Path(txt).read_text()
+        keys_2 = list(item.split(":") for item in keys_1.split("\n"))
+        keys_3 = dict(keys_2)
+        keys = tuple(keys_3.keys())
+        return keys
+
     """The main function which creates the pipeline and runs it."""
     # Setting up the Beam pipeline options
     options = PipelineOptions()
