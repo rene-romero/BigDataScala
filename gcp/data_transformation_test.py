@@ -37,8 +37,16 @@ def replace_nulls(element):
     return element.replace('NULL','')
 
 def parse_method(string_input, b, p):
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(b)
+    blob = bucket.blob(p)
+    keys_1 = blob.download_as_text()
+    keys_2 = list(item.split(":") for item in keys_1.split("\n"))
+    keys_3 = dict(keys_2)
+    keys_res = tuple(keys_3.keys())
+
     values = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
-    keys = keys_from_schema_txt(b,p)
+    keys = keys_res
     row = dict(zip(keys,values))
     return row
 
