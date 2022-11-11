@@ -2,48 +2,46 @@ import logging
 import argparse
 import time
 import re
-
+from google.cloud import storage
 from datetime import datetime as dt
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.pipeline_options import StandardOptions
 from apache_beam.options.pipeline_options import GoogleCloudOptions
 import apache_beam as beam
 
+def keys_from_schema_txt(bucket, path):
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(bucket)
+    blob = bucket.blob(path)
+    keys_1 = blob.download_as_text()
+    keys_2 = list(item.split(":") for item in keys_1.split("\n"))
+    keys_3 = dict(keys_2)
+    keys = tuple(keys_3.keys())
+    return keys
+
+def schema_txt(bucket, path):
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(bucket)
+    blob = bucket.blob(path)
+    table_schema_1 = blob.download_as_text()
+    table_schema_2 = list(item.split(":") for item in table_schema_1.split("\n"))
+    table_schema_3 = dict(table_schema_2)
+    schema = str()
+    for key in table_schema_3:
+        schema += key + ":" + table_schema_3[key] + ","
+    table_schema = schema.strip(",")
+    return table_schema
+
+def replace_nulls(element):
+    return element.replace('NULL','')
+
+def parse_method(string_input):
+    values = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
+    keys = ('year_post','name_day_of_week','n_reg')
+    row = dict(zip(keys,values))
+    return row
+
 def run(**kwargs):
-    from google.cloud import storage
-
-    def schema_txt(bucket, path):
-        storage_client = storage.Client()
-        bucket = storage_client.get_bucket(bucket)
-        blob = bucket.blob(path)
-        table_schema_1 = blob.download_as_text()
-        table_schema_2 = list(item.split(":") for item in table_schema_1.split("\n"))
-        table_schema_3 = dict(table_schema_2)
-        schema = str()
-        for key in table_schema_3:
-            schema += key + ":" + table_schema_3[key] + ","
-        table_schema = schema.strip(",")
-        return table_schema
-
-    def replace_nulls(element):
-        return element.replace('NULL','')
-
-    def keys_from_schema_txt(bucket, path):
-        storage_client = storage.Client()
-        bucket = storage_client.get_bucket(bucket)
-        blob = bucket.blob(path)
-        keys_1 = blob.download_as_text()
-        keys_2 = list(item.split(":") for item in keys_1.split("\n"))
-        keys_3 = dict(keys_2)
-        keys = tuple(keys_3.keys())
-        return keys
-
-    def parse_method(string_input, b, p):
-        values = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
-        keys = (keys_from_schema_txt(b, p))
-        row = dict(zip(keys,values))
-        return row
-
     options = PipelineOptions()
     options.view_as(GoogleCloudOptions).project = kwargs.get('project')
     options.view_as(GoogleCloudOptions).region = kwargs.get('region')
@@ -66,7 +64,7 @@ def run(**kwargs):
     (p
     | 'Read_from_GCS' >> beam.io.ReadFromText(kwargs.get('input'), skip_header_lines=1)
     | 'Replace_Nulls' >> beam.Map(replace_nulls)
-    | 'String To BigQuery Row' >> beam.Map(parse_method, b=bucket, p=path)
+    | 'String To BigQuery Row' >> beam.Map(parse_method)
     | 'Write_to_BigQuery' >> beam.io.WriteToBigQuery(
     kwargs.get('output'),
     schema=table_schema,
