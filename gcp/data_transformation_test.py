@@ -2,16 +2,14 @@ import logging
 import argparse
 import time
 import re
-
+from google.cloud import storage
 from datetime import datetime as dt
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.pipeline_options import StandardOptions
 from apache_beam.options.pipeline_options import GoogleCloudOptions
-from apache_beam.options.pipeline_options import SetupOptions
 import apache_beam as beam
 
 def keys_from_schema_txt(b, p):
-    from google.cloud import storage
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(b)
     blob = bucket.blob(p)
@@ -22,7 +20,6 @@ def keys_from_schema_txt(b, p):
     return keys
 
 def schema_txt(b, p):
-    from google.cloud import storage
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(b)
     blob = bucket.blob(p)
@@ -38,18 +35,8 @@ def schema_txt(b, p):
 def replace_nulls(element):
     return element.replace('NULL','')
 
-def parse_method(string_input, b, p):
-    from google.cloud import storage
-    storage_client = storage.Client()
-    bucket = storage_client.get_bucket(b)
-    blob = bucket.blob(p)
-    keys_1 = blob.download_as_text()
-    keys_2 = list(item.split(":") for item in keys_1.split("\n"))
-    keys_3 = dict(keys_2)
-    keys_res = tuple(keys_3.keys())
-
+def parse_method(string_input, keys=None):
     values = re.split(",", re.sub('\r\n', '', re.sub('"', '',string_input)))
-    keys = keys_res
     row = dict(zip(keys,values))
     return row
 
@@ -61,7 +48,6 @@ def run(**kwargs):
     options.view_as(GoogleCloudOptions).temp_location = kwargs.get('tempLocation')
     options.view_as(GoogleCloudOptions).job_name = '{0}{1}'.format('my-pipeline-test-',time.time_ns())
     options.view_as(StandardOptions).runner = kwargs.get('runner')
-    options.view_as(SetupOptions).save_main_session = True
 
     uri = kwargs.get('schema')
     matches = re.match("gs://(.*?)/(.*)", uri)
@@ -70,6 +56,7 @@ def run(**kwargs):
     bucket = bucket_name
     path = path_name
 
+    keys_schema = keys_from_schema_txt(bucket, path)
     table_schema = schema_txt(bucket, path)
 
     p = beam.Pipeline(options=options)
@@ -77,7 +64,7 @@ def run(**kwargs):
     (p
     | 'Read_from_GCS' >> beam.io.ReadFromText(kwargs.get('input'), skip_header_lines=1)
     | 'Replace_Nulls' >> beam.Map(replace_nulls)
-    | 'String To BigQuery Row' >> beam.Map(parse_method, b=bucket, p=path)
+    | 'String To BigQuery Row' >> beam.Map(parse_method, keys = keys_schema)
     | 'Write_to_BigQuery' >> beam.io.WriteToBigQuery(
     kwargs.get('output'),
     schema=table_schema,
