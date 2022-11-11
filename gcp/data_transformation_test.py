@@ -42,13 +42,6 @@ def parse_method(string_input, b, p):
     return row
 
 def run(**kwargs):
-    options = PipelineOptions()
-    options.view_as(GoogleCloudOptions).project = kwargs.get('project')
-    options.view_as(GoogleCloudOptions).region = kwargs.get('region')
-    options.view_as(GoogleCloudOptions).staging_location = kwargs.get('stagingLocation')
-    options.view_as(GoogleCloudOptions).temp_location = kwargs.get('tempLocation')
-    options.view_as(GoogleCloudOptions).job_name = '{0}{1}'.format('my-pipeline-test-',time.time_ns())
-    options.view_as(StandardOptions).runner = kwargs.get('runner')
 
     uri = kwargs.get('schema')
     matches = re.match("gs://(.*?)/(.*)", uri)
@@ -59,7 +52,7 @@ def run(**kwargs):
 
     table_schema = schema_txt(bucket, path)
 
-    p = beam.Pipeline(options=options)
+    p = beam.Pipeline(options=PipelineOptions(kwargs))
 
     (p
     | 'Read_from_GCS' >> beam.io.ReadFromText(kwargs.get('input'), skip_header_lines=1)
