@@ -39,6 +39,15 @@ def replace_nulls(element):
     return element.replace('NULL','')
 
 def run(**kwargs):
+    global bucket, path
+
+    uri = kwargs.get('schema')
+    matches = re.match("gs://(.*?)/(.*)", uri)
+    if matches:
+        bucket_name, path_name = matches.groups()
+    bucket = bucket_name
+    path = path_name
+
     def keys_from_schema_txt(bucket, path):
         storage_client = storage.Client()
         bucket = storage_client.get_bucket(bucket)
@@ -124,14 +133,6 @@ if __name__ == "__main__":
     parser.add_argument('--output', dest='output',  required=True, help='Output BQ table to write results to.')
     parser.add_argument('--schema', dest='schema',  required=True, help='Input schema to apply in our data.')
     opts = parser.parse_args()
-
-    global uri,bucket,path
-    uri = opts.schema
-    matches = re.match("gs://(.*?)/(.*)", uri)
-    if matches:
-        bucket_name, path_name = matches.groups()
-    bucket = bucket_name
-    path = path_name
 
     logging.getLogger().setLevel(logging.WARNING)
     run(**vars(opts))
