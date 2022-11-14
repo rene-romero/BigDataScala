@@ -408,3 +408,27 @@ df_profile_post_impact.show()
 As we can see, instagram is one of the largest social networks around the world, knowing how people interact is essential today for companies whose operating logic depends heavily on interactions through social networks (marketing agencies) .
 
 There are a lot of courses on the internet that "teach" how to sell on social networks or how to get many views on posts, but the reality is that only by really analyzing the data can we see trends, characteristics of both profiles and the publications with the greatest impact.
+
+
+
+
+# GOOCLE CLOUD PLATFORM
+
+GCP is a suite of cloud computing services offered by Google. The platform includes a range of hosted services for compute, storage and application development that run on Google hardware. In this case is used it to load our information summary that we got in our spark process.
+
+## Google Cloud Storage
+
+GCS is a service for storing our objects in Google Cloud Platform. we created a bucket which can be done either with the command lines or UI.
+
+Command line: gsutil mb gs://<YOUR_BUCKET_NAME>
+where <YOUR_BUCKET_NAME> = bucket-cdelacruz
+
+![Untitled](./img/gcp-1.png)
+
+We have created 2 folders in our storage. 
+
+from_spark: Folder holds the files that we want to send to BigQuery.
+temp: Folder holds the files and logs that are produced when a dataflow job runs.
+
+![Untitled](./img/gcp-2.png)
+
