@@ -412,6 +412,8 @@ There are a lot of courses on the internet that "teach" how to sell on social ne
 
 
 
+
+
 # GOOCLE CLOUD PLATFORM
 
 GCP is a suite of cloud computing services offered by Google. The platform includes a range of hosted services for compute, storage and application development that run on Google hardware. In this case is used it to load our information summary that we got in our spark process.
@@ -434,3 +436,55 @@ temp: Folder holds the files and logs that are produced when a dataflow job runs
 
 ![Untitled](./img/gcp-2.png)
 
+
+![Untitled](./img/gcp-3.png)
+
+
+The summary tables uploaded are:  
+  
+1. date_x_post  
+2. impact_posts  
+3. profile_post_impact  
+  
+  
+## Google Cloud Storage
+
+Dataflow is a managed service for executing a wide variety of data processing patterns. In this case is used to do the different transformations as to have the control with null values, give the format correct in BQ and assign the schema with an external file and like this to have a more flexible process.  
+  
+
+To generate the previously mentioned process, we rely on the following code with the python programming language.  
+  
+
+```python
+  def run(**kwargs):
+    options = PipelineOptions()
+    options.view_as(GoogleCloudOptions).project = kwargs.get('project')
+    options.view_as(GoogleCloudOptions).region = kwargs.get('region')
+    options.view_as(GoogleCloudOptions).staging_location = kwargs.get('stagingLocation')
+    options.view_as(GoogleCloudOptions).temp_location = kwargs.get('tempLocation')
+    options.view_as(GoogleCloudOptions).job_name = '{0}{1}'.format('my-pipeline-json-',time.time_ns())
+    options.view_as(StandardOptions).runner = kwargs.get('runner')
+
+    uri = kwargs.get('schema')
+    matches = re.match("gs://(.*?)/(.*)", uri)
+    if matches:
+        bucket_name, path_name = matches.groups()
+    bucket = bucket_name
+    path = path_name
+
+    keys_schema = keys_from_schema_txt(bucket, path)
+    table_schema = schema_txt(bucket, path)
+
+    p = beam.Pipeline(options=options)
+
+    (p
+    | 'Read_from_GCS' >> beam.io.ReadFromText(kwargs.get('input'), skip_header_lines=1)
+    | 'Replace_Nulls' >> beam.Map(replace_nulls)
+    | 'String To BigQuery Row' >> beam.Map(parse_method, keys = keys_schema)
+    | 'Write_to_BigQuery' >> beam.io.WriteToBigQuery(
+    kwargs.get('output'),
+    schema=table_schema,
+    create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED,
+    write_disposition=beam.io.BigQueryDisposition.WRITE_TRUNCATE))
+    p.run().wait_until_finish()
+```
