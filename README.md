@@ -420,15 +420,17 @@ GCP is a suite of cloud computing services offered by Google. The platform inclu
 
 GCS is a service for storing our objects in Google Cloud Platform. we created a bucket which can be done either with the command lines or UI.
 
-Command line: gsutil mb gs://<YOUR_BUCKET_NAME>
+Command line: gsutil mb gs://<YOUR_BUCKET_NAME>  
 where <YOUR_BUCKET_NAME> = bucket-cdelacruz
+
 
 ![Untitled](./img/gcp-1.png)
 
 We have created 2 folders in our storage. 
 
-from_spark: Folder holds the files that we want to send to BigQuery.
+from_spark: Folder holds the files that we want to send to BigQuery.  
 temp: Folder holds the files and logs that are produced when a dataflow job runs.
+
 
 ![Untitled](./img/gcp-2.png)
 
