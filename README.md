@@ -507,4 +507,25 @@ The json file has to have the next structure in the information:
 ![Untitled](./img/gcp-4.png)  
   
 
-With the previous pipeline we don't need to change our schema with other information, we only need to change de json file as long as our information is a CSV file.
+With the previous pipeline we don't need to change our schema with other information in the code, we only need to change de json file as long as our information is a CSV file.  
+  
+
+To execute the pipeline is neccesary to type the next command line in Google Shell:  
+  
+````
+python3 BigDataScala/gcp/data_transformation_json.py \
+--project=$PROJECT \
+--region=us-central1 \
+--runner=DataflowRunner \
+--stagingLocation=gs://$BUCKET/temp \
+--tempLocation gs://$BUCKET/temp \
+--input gs://$BUCKET/from_spark/date_x_post/*.csv \
+--output results.date_x_post \
+--schema gs://$BUCKET/from_spark/date_x_post/schema_date_x_post.json
+````
+  
+
+We can check the progress in job section of Dataflow:  
+  
+
+![Untitled](./img/gcp-5.png) 
