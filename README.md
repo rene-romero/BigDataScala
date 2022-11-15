@@ -447,7 +447,7 @@ The summary tables uploaded are:
 3. profile_post_impact  
   
   
-## Google Cloud Storage
+## Dataflow
 
 Dataflow is a managed service for executing a wide variety of data processing patterns. In this case is used to do the different transformations as to have the control with null values, give the format correct in BQ and assign the schema with an external file and like this to have a more flexible process.  
   
@@ -488,3 +488,17 @@ To generate the previously mentioned process, we rely on the following code with
     write_disposition=beam.io.BigQueryDisposition.WRITE_TRUNCATE))
     p.run().wait_until_finish()
 ```
+  
+  
+To complete the previous code there are other 4 main functions that helps to process the data that we want to load to BigQuery.  
+  
+**replace_nulls:** This function takes a string with comma separated values as input and replaces all NULL values with an empty string.
+**parse_method:** This stage of the pipeline translates from a CSV file single row input as a string, to a dictionary object consumable by BigQuery.
+**schema_txt:** We get the name of the fields with their respective data types from the json file.
+**keys_from_schema_txt:** We get only the name of the fields from the json file.  
+  
+
+The json file has to have the next structure in the information:  
+
+
+![Untitled](./img/gcp-4.png)
