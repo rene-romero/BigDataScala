@@ -493,8 +493,11 @@ To generate the previously mentioned process, we rely on the following code with
 To complete the previous code there are other 4 main functions that helps to process the data that we want to load to BigQuery.  
   
 **replace_nulls:** This function takes a string with comma separated values as input and replaces all NULL values with an empty string.  
+  
 **parse_method:** This stage of the pipeline translates from a CSV file single row input as a string, to a dictionary object consumable by BigQuery.  
+  
 **schema_txt:** We get the name of the fields with their respective data types from the json file.  
+  
 **keys_from_schema_txt:** We get only the name of the fields from the json file.  
   
 
