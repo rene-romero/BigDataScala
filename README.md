@@ -504,4 +504,7 @@ To complete the previous code there are other 4 main functions that helps to pro
 The json file has to have the next structure in the information:  
 
 
-![Untitled](./img/gcp-4.png)
+![Untitled](./img/gcp-4.png)  
+  
+
+With the previous pipeline we don't need to change our schema with other information, we only need to change de json file as long as our information is a CSV file.
