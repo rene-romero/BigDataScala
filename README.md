@@ -529,3 +529,21 @@ We can check the progress in job section of Dataflow:
   
 
 ![Untitled](./img/gcp-5.png) 
+
+
+Successful completion of the job means that our reporting tables are available in BigQuery. 
+  
+
+
+## BigQuery
+
+BQ is a fully managed enterprise data warehouse that helps you manage and analyze your data through built-in functions.  
+  
+
+![Untitled](./img/gcp-6.png)  
+  
+
+With our information loaded in BigQuery we are able to analyze the information through SQL queries and different functions that BQ gives us.  
+  
+
+![Untitled](./img/gcp-7.png)  
