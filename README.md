@@ -547,3 +547,5 @@ With our information loaded in BigQuery we are able to analyze the information t
   
 
 ![Untitled](./img/gcp-7.png)  
+
+![Untitled](./img/gcp-8.png) 
