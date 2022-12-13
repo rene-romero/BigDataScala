@@ -549,3 +549,26 @@ With our information loaded in BigQuery we are able to analyze the information t
 ![Untitled](./img/gcp-7.png)  
 
 ![Untitled](./img/gcp-8.png) 
+  
+
+
+# TABLEAU
+
+Tableau is an excellent data visualization and business intelligence tool used for reporting and analyzing vast volumes of data.  
+  
+Taking our reporting tables that we generated with spark, we represent them with tableau to know different features or trends about the information that we have. We have two different approaches and each is represented by a dashboard.  
+  
+  
+Demographic approach
+
+![Untitled](./img/tableau-1.png)
+
+
+Trend approach
+
+![Untitled](./img/tableau-2.png)
+  
+
+If you want to check the dashboards click on the next link: [https://public.tableau.com/app/profile/christian.de.la.cruz5877]  
+  
+![Untitled](./img/tableau-3.png)
